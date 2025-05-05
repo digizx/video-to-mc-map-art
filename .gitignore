@@ -1,0 +1,6 @@
+# Don't add media files
+*.mp4
+*/*.mp4
+*.png
+*/*.png
+*venv
