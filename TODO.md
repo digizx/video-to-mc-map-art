@@ -1,7 +1,7 @@
 # Minimum things that need to be done to call the consider the project completed
 
 - [x] Transform video into N amount of frames with FFMPEG
-- [ ] Read pixels from an image
+- [x] Read pixels from an image
 - [ ] Create DB to map Minecraft blocks into colors
 - [ ] Find closest Minecraft block color to the color input
 - [ ] Decode Minecraft DAT files
