@@ -1,4 +1,4 @@
-# Minimum things that need to be done to call the consider the project completed
+## 🎯 TODOs
 
 - [x] Transform video into N amount of frames with FFMPEG
 - [x] Read pixels from an image
