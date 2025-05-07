@@ -1,0 +1,312 @@
+[
+    {
+        "id": 0,
+        "name": "NONE",
+        "rgb": [-255, -255, -255]
+    },
+    {
+        "id": 1,
+        "name": "GRASS",
+        "rgb": [127, 178, 56]
+    },
+    {
+        "id": 2,
+        "name": "SAND",
+        "rgb": [247, 233, 163]
+    },
+    {
+        "id": 3,
+        "name": "WOOL",
+        "rgb": [199, 199, 199]
+    },
+    {
+        "id": 4,
+        "name": "FIRE",
+        "rgb": [255, 0, 0]
+    },
+    {
+        "id": 5,
+        "name": "ICE",
+        "rgb": [160, 160, 255]
+    },
+    {
+        "id": 6,
+        "name": "METAL",
+        "rgb": [167, 167, 167]
+    },
+    {
+        "id": 7,
+        "name": "PLANT",
+        "rgb": [0, 124, 0]
+    },
+    {
+        "id": 8,
+        "name": "SNOW",
+        "rgb": [255, 255, 255]
+    },
+    {
+        "id": 9,
+        "name": "CLAY",
+        "rgb": [164, 168, 184]
+    },
+    {
+        "id": 10,
+        "name": "DIRT",
+        "rgb": [151, 109, 77]
+    },
+    {
+        "id": 11,
+        "name": "STONE",
+        "rgb": [112, 112, 112]
+    },
+    {
+        "id": 12,
+        "name": "WATER",
+        "rgb": [64, 64, 255]
+    },
+    {
+        "id": 13,
+        "name": "WOOD",
+        "rgb": [143, 119, 72]
+    },
+    {
+        "id": 14,
+        "name": "QUARTZ",
+        "rgb": [255, 252, 245]
+    },
+    {
+        "id": 15,
+        "name": "COLOR_ORANGE",
+        "rgb": [216, 127, 51]
+    },
+    {
+        "id": 16,
+        "name": "COLOR_MAGNETA",
+        "rgb": [178, 76, 216]
+    },
+    {
+        "id": 17,
+        "name": "COLOR_LIGHT_BLUE",
+        "rgb": [102, 153, 216]
+    },
+    {
+        "id": 18,
+        "name": "COLOR_YELLOW",
+        "rgb": [229, 229, 51]
+    },
+    {
+        "id": 19,
+        "name": "COLOR_LIGHT_GREEN",
+        "rgb": [127, 204, 25]
+    },
+    {
+        "id": 20,
+        "name": "COLOR_PINK",
+        "rgb": [242, 127, 165]
+    },
+    {
+        "id": 21,
+        "name": "COLOR_GRAY",
+        "rgb": [76, 76, 76]
+    },
+    {
+        "id": 22,
+        "name": "COLOR_LIGHT_GRAY",
+        "rgb": [153, 153, 153]
+    },
+    {
+        "id": 23,
+        "name": "COLOR_CYAN",
+        "rgb": [76, 127, 153]
+    },
+    {
+        "id": 24,
+        "name": "COLOR_PURPLE",
+        "rgb": [127, 63, 178]
+    },
+    {
+        "id": 25,
+        "name": "COLOR_BLUE",
+        "rgb": [51, 76, 178]
+    },
+    {
+        "id": 26,
+        "name": "COLOR_BROWN",
+        "rgb": [102, 76, 51]
+    },
+    {
+        "id": 27,
+        "name": "COLOR_GREEN",
+        "rgb": [102, 127, 51]
+    },
+    {
+        "id": 28,
+        "name": "COLOR_RED",
+        "rgb": [153, 51, 51]
+    },
+    {
+        "id": 29,
+        "name": "COLOR_BLACK",
+        "rgb": [25, 25, 25]
+    },
+    {
+        "id": 30,
+        "name": "GOLD",
+        "rgb": [250, 238, 77]
+    },
+    {
+        "id": 31,
+        "name": "DIAMOND",
+        "rgb": [92, 219, 213]
+    },
+    {
+        "id": 32,
+        "name": "LAPIS",
+        "rgb": [74, 128, 255]
+    },
+    {
+        "id": 33,
+        "name": "EMERALD",
+        "rgb": [0, 217, 58]
+    },
+    {
+        "id": 34,
+        "name": "PODZOL",
+        "rgb": [129, 86, 49]
+    },
+    {
+        "id": 35,
+        "name": "NETHER",
+        "rgb": [112, 2, 0]
+    },
+    {
+        "id": 36,
+        "name": "TERRACOTTA_WHITE",
+        "rgb": [209, 177, 161]
+    },
+    {
+        "id": 37,
+        "name": "TERRACOTTA_ORANGE",
+        "rgb": [159, 82, 36]
+    },
+    {
+        "id": 38,
+        "name": "TERRACOTTA_MAGNETA",
+        "rgb": [149, 87, 108]
+    },
+    {
+        "id": 39,
+        "name": "TERRACOTTA_LIGHT_BLUE",
+        "rgb": [112, 108, 138]
+    },
+    {
+        "id": 40,
+        "name": "TERACOTTA_YELLOW",
+        "rgb": [186, 133, 36]
+    },
+    {
+        "id": 41,
+        "name": "TERACOTTA_LIGHT_SCREEN",
+        "rgb": [103, 117, 53]
+    },
+    {
+        "id": 42,
+        "name": "TERACOTTA_PINK",
+        "rgb": [160, 77, 78]
+    },
+    {
+        "id": 43,
+        "name": "TERACOTTA_GRAY",
+        "rgb": [57, 41, 35]
+    },
+    {
+        "id": 44,
+        "name": "TERACOTTA_LIGHT_GRAY",
+        "rgb": [135, 107, 98]
+    },
+    {
+        "id": 45,
+        "name": "TERACOTTA_CYAN",
+        "rgb": [87, 92, 92]
+    },
+    {
+        "id": 46,
+        "name": "TERACOTTA_PURPLE",
+        "rgb": [122, 73, 88]
+    },
+    {
+        "id": 47,
+        "name": "TERACOTTA_BLUE",
+        "rgb": [76, 62, 92]
+    },
+    {
+        "id": 48,
+        "name": "TERACOTTA_BROWN",
+        "rgb": [76, 50, 35]
+    },
+    {
+        "id": 49,
+        "name": "TERACOTTA_GREEN",
+        "rgb": [76, 82, 42]
+    },
+    {
+        "id": 50,
+        "name": "TERACOTTA_RED",
+        "rgb": [142, 60, 46]
+    },
+    {
+        "id": 51,
+        "name": "TERACOTTA_BLACK",
+        "rgb": [37, 22, 16]
+    },
+    {
+        "id": 52,
+        "name": "CRIMSON_NYLIUM",
+        "rgb": [189, 48, 49]
+    },
+    {
+        "id": 53,
+        "name": "CRIMSON_STEM",
+        "rgb": [148, 63, 97]
+    },
+    {
+        "id": 54,
+        "name": "CRIMSON_HYPHAE",
+        "rgb": [92, 25, 29]
+    },
+    {
+        "id": 55,
+        "name": "WARPED_NYLIUM",
+        "rgb": [22, 126, 134]
+    },
+    {
+        "id": 56,
+        "name": "WARPED_STEM",
+        "rgb": [58, 142, 140]
+    },
+    {
+        "id": 57,
+        "name": "WARPED_HYPHAE",
+        "rgb": [86, 44, 62]
+    },
+    {
+        "id": 58,
+        "name": "WARPED_WART_BLOCK",
+        "rgb": [20, 180, 133]
+    },
+    {
+        "id": 59,
+        "name": "DEEPSLATE",
+        "rgb": [100, 100, 100]
+    },
+    {
+        "id": 60,
+        "name": "RAW_IRON",
+        "rgb": [216, 175, 147]
+    },
+    {
+        "id": 61,
+        "name": "GLOW_LICHEN",
+        "rgb": [127, 167, 150]
+    }
+]
