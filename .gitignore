@@ -3,4 +3,9 @@
 */*.mp4
 *.png
 */*.png
+
+# Don't add python stuff
 *venv
+*__pycache__
+/*__pycache__
+*/*__pycache__
