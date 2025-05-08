@@ -7,3 +7,4 @@
 - [ ] Decode Minecraft DAT files
 - [ ] Encode Minecraft DAT files
 - [ ] Transform image into DAT file
+- [ ] Create a watchdog that checks for new images generated and transforms them into DAT files
