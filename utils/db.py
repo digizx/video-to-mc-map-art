@@ -1,6 +1,6 @@
 import os
 import json
-from models.color import MinecraftColor
+from models.MinecraftColor import MinecraftColor
 
 ROOT_DIR = os.path.abspath(os.curdir)
 SRC_DIR = os.path.join(ROOT_DIR, 'src')

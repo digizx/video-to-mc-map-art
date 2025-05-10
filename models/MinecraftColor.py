@@ -1,4 +1,4 @@
-from models.rgb import RGBColor
+from models.RGBColor import RGBColor
 
 class MinecraftColor:
     def __init__(

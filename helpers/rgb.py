@@ -1,12 +1,15 @@
 from utils.db import db
 from numpy import uint8, int8, clip
 from typing import final
-from models.rgb import RGBColor
+from models.RGBColor import RGBColor
 
 def shade_rgb_color(
     color : uint8,
     shade : uint8
     ) -> uint8:
+    """
+    Based on Minecraft Map Art, it turns a color into a certain degre of shade.
+    """
     shaded_color = (color / shade) * 255
     return uint8(clip(shaded_color, 0, 255))
 
@@ -25,8 +28,6 @@ def find_shade_variations(
     result = []
     SHADES : final = [135, 180, 220, 255]
 
-    from pprint import pprint
-    pprint(vars(input_rgb))
     for shade in SHADES:
         shaded_r = shade_rgb_color(input_rgb.r, shade)
         shaded_g = shade_rgb_color(input_rgb.g, shade)
@@ -44,9 +45,12 @@ def diff_rgb_color(
     Returns the difference as an 8-bit unsinged integer between
     two pairs of RGBColor.
     """
-    return (
-        abs(a.r - b.r) + abs(a.g - b.g) + abs(a.b - b.b)
-    )
+    diff_r = abs(int(a.r) - int(b.r))
+    diff_g = abs(int(a.g) - int(b.g))
+    diff_b = abs(int(a.b) - int(b.b))
+
+    total_diff = diff_r + diff_g + diff_b
+    return clip(total_diff, 0, 255)
 
 def find_best_suitable_block(
     database : db, 
@@ -58,7 +62,9 @@ def find_best_suitable_block(
     """
     shaded_colors = []
     for color in database.colors:
-        shaded_variations = find_shade_variations(color)
+        shaded_variations = find_shade_variations(
+            RGBColor(color.rgb["r"], color.rgb["g"], color.rgb["b"])
+        )
         shaded_colors.extend(shaded_variations)
     
     best_block_id = -1
@@ -72,4 +78,5 @@ def find_best_suitable_block(
     
 if __name__ == '__main__':
     database = db()
-    find_best_suitable_block(database, RGBColor(255, 0, 0))
+    best_block_id = find_best_suitable_block(database, RGBColor(255, 0, 0))
+    print(best_block_id)
