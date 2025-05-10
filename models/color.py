@@ -1,9 +1,11 @@
-class color:
+from models.rgb import RGBColor
+
+class MinecraftColor:
     def __init__(
             self,
             id : int, 
             name : str, 
-            rgb : tuple[int, int, int]
+            rgb : RGBColor
         ):
         self.id = id
         self.name = name
