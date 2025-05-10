@@ -24,7 +24,6 @@ def read_image_pixels(
 
     return pix, w, h
 
-
 if (__name__ == "__main__"):
 
     path_sample_image = os.path.join(SRC_DIR, 'miku.png')

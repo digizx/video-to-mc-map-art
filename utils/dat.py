@@ -14,6 +14,17 @@ def nbt_to_dat(nbt_file):
     
     return gzip.compress(uncompressed_data)
 
+def save_dat_file(dat_file, path):
+    """
+    Saves DAT file in a determined path
+    """
+    try:
+        with open(path, 'wb') as f:
+            f.write(dat_file)
+            print('The .dat file was saved successfully!')
+    except Exception as e:
+        print('Error saving .dat file:', e)
+
 if __name__ == '__main__':
     
     import os
