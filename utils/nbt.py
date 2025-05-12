@@ -44,7 +44,7 @@ if __name__ == "__main__":
     colors.append(5)
 
     # nbt_file = encode_into_map_nbt(colors)
-    nbt_file = nbtlib.load(os.path.join(OUTPUT_DIR, 'map_1.dat'))
+    nbt_file = nbtlib.load(os.path.join(SRC_DIR, 'map_4.dat'))
 
     print(nbt_file)
 
