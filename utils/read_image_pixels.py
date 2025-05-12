@@ -1,6 +1,6 @@
 import os
-import PIL.Image
 import PIL
+from PIL import ImageCms
 
 ROOT_DIR = os.path.abspath(os.curdir)
 SRC_DIR = os.path.join(ROOT_DIR, 'src')
@@ -19,8 +19,7 @@ def read_image_pixels(
     ):
     im = PIL.Image.open(path).convert('RGB')
     pix = im.load()
-    w = im.size[0]
-    h = im.size[1]
+    w, h = im.size
 
     return pix, w, h
 

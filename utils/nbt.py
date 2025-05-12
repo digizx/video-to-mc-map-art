@@ -11,18 +11,21 @@ def encode_into_map_nbt(map_colors : list[int8]) -> nbtlib.Compound:
     
     data = nbtlib.Compound({
         'zCenter': nbtlib.Int(0),
-        'unlimitedTracking': nbtlib.Int(0),
-        'trackingPosition': nbtlib.Int(0),
+        'unlimitedTracking': nbtlib.Byte(0),
+        'trackingPosition': nbtlib.Byte(0),
         'frames': nbtlib.List([]),
-        'scale': nbtlib.Int(0),
-        'locked': nbtlib.Int(1),
+        'scale': nbtlib.Byte(0),
+        'locked': nbtlib.Byte(1),
         'dimension': nbtlib.String('minecraft:overworld'),
         'banners': nbtlib.List([]),
-        'colors': nbtlib.ByteArray(map_colors),
-        'DataVersion': nbtlib.Int(4189)
+        'xCenter': nbtlib.Int(0),
+        'colors': nbtlib.ByteArray(map_colors)
     })
     
-    return nbtlib.File({'data': data})
+    return nbtlib.File({
+        'data': data,
+        'DataVersion': nbtlib.Int(4189)
+    })
 
 if __name__ == "__main__":
     
@@ -40,7 +43,8 @@ if __name__ == "__main__":
     colors.append(4)
     colors.append(5)
 
-    nbt_file = encode_into_map_nbt(colors)
+    # nbt_file = encode_into_map_nbt(colors)
+    nbt_file = nbtlib.load(os.path.join(OUTPUT_DIR, 'map_1.dat'))
 
     print(nbt_file)
 

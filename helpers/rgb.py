@@ -79,13 +79,15 @@ def find_best_suitable_block(
         )
         shaded_colors.extend(shaded_variations)
     
-    best_block_id : uint8 = -1
+    best_block_id : uint8 = 0
     closest_match = 255 # 0 is the best possible match. There's no diff between RGB colors
     for index, rgb_color in enumerate(shaded_colors):
         diff = diff_rgb_color(input_rgb, rgb_color)
         if diff <= closest_match:
             best_block_id = index
             closest_match = diff
+            if closest_match <= 0:
+                break
     
     final_best_block_id : int8 = best_block_sorcery(best_block_id)
 
@@ -110,8 +112,9 @@ if __name__ == '__main__':
     # iterate through each pixel
     blocks : list[int8] = []
     for i in range(w):
+        print('Current row:', i + 1)
         for j in range(h):
-            r, g, b = pix[i, j]
+            r, g, b = pix[j, i] # for some reason, it is rotated, so i just inverted it
             best_block_id = find_best_suitable_block(database, RGBColor(r, g, b))
             blocks.append(best_block_id)
     
@@ -119,6 +122,7 @@ if __name__ == '__main__':
     nbt_file =  encode_into_map_nbt(blocks)
 
     # encode into dat
+    print(nbt_file)
     dat_file = nbt_to_dat(nbt_file)
 
     # return the dat file as a buffer
