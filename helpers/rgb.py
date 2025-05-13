@@ -38,12 +38,12 @@ def find_best_suitable_block(
     """
     best_block_id : uint8 = 0
     closest_match = 255 # 0 is the best possible match. There's no diff between RGB colors
-    for index, color in enumerate(colors):
+    for color in colors:
         diff = diff_rgb_color(input_rgb, color.rgb)
         if diff <= closest_match:
-            best_block_id = index
+            best_block_id = color.id
             closest_match = diff
-            if closest_match <= 0:
+            if closest_match <= 20:
                 break
     
     final_best_block_id : int8 = best_block_sorcery(best_block_id)

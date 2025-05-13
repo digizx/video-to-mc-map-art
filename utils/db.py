@@ -57,7 +57,7 @@ class db:
         the 4 Minecraft shade variations
         """
         result : list[MinecraftColor] = []
-        SHADES : final = [135, 180, 220, 255]
+        SHADES : final = [180, 220, 255, 135]
 
         for index, shade in enumerate(SHADES):
             shaded_r = self.shade_rgb_color(mc_color.rgb.r, shade)
