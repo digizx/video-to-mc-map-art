@@ -68,15 +68,24 @@ if __name__ == '__main__':
 
     # iterate through each pixel
     blocks : list[int8] = []
+    found_rgb_blocks = {} # dictionary
+
     for i in range(w):
         print('Current row:', i + 1)
         for j in range(h):
             r, g, b = pix[j, i] # for some reason, it is rotated, so i just inverted it
-            best_block_id = find_best_suitable_block(
-                database.shaded_colors[4:], # exclude transparent shaded colors
-                RGBColor(r, g, b)
-            )
-            blocks.append(best_block_id)
+
+            # cache the colors, so the math doesn't repeat over and over if colors repeat
+            key = f'{r},{g},{b}'
+            if key in found_rgb_blocks:
+                blocks.append(found_rgb_blocks[key])
+            else:
+                best_block_id = find_best_suitable_block(
+                    database.shaded_colors[4:], # exclude transparent shaded colors
+                    RGBColor(r, g, b)
+                )
+                blocks.append(best_block_id)
+                found_rgb_blocks[key] = best_block_id
     
     # encode into a map nbt
     nbt_file =  encode_into_map_nbt(blocks)
