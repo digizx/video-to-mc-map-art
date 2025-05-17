@@ -1,5 +1,6 @@
 import gzip
 import json
+import time
 from models.MinecraftColor import MinecraftColor
 from utils.db import db
 from numpy import uint8, int8, clip
@@ -65,54 +66,47 @@ if __name__ == '__main__':
     
     # load the image
 
-    # path_image = os.path.join(SRC_DIR, 'miku.png')
-    # pix, w, h = read_image_pixels(path_image)
+    path_image = os.path.join(SRC_DIR, 'miku.png')
+    pix, w, h = read_image_pixels(path_image)
 
-    # iterate through each pixel
-    # blocks : list[int8] = []
-    hashmap_colors = {} # dictionary
+    # start timer
+    start = time.time()
 
-    for i in range(0, 256):
-        for j in range(0, 256):
-            for k in range(0, 256):
-                rgb_color = RGBColor(i, j, k)
-                key = f'{rgb_color.r},{rgb_color.g},{rgb_color.b}'
-                hashmap_colors[key] = int(find_best_suitable_block(database.shaded_colors, rgb_color))
-                print(key)
+    # read hashmap colors dictionary
+    path_hashmap_colors = os.path.join(SRC_DIR, 'hashmap_colors.json.gz')
+    with gzip.open(path_hashmap_colors, 'rt', encoding='utf-8') as file:
+        hashmap_colors = json.load(file)
     
-    path_output_json = os.path.join(SRC_DIR, 'hashmap_colors.json.gz')
-    with gzip.open(path_output_json, 'wt', encoding='utf-8') as file:
-        json.dump(hashmap_colors, file, indent=4)
+    # end timer
+    end = time.time()
 
-    print('JSON file was saved successfully!')
+    print('Time to load colors hashmap:', end - start)
 
-    # for i in range(w):
-    #     print('Current row:', i + 1)
-    #     for j in range(h):
-    #         r, g, b = pix[j, i] # for some reason, it is rotated, so i just inverted it
+    start = time.time()
+    
+    # look for each color
+    blocks : list[int8] = []
+    for i in range(w):
+        # print('Current row:', i + 1)
+        for j in range(h):
+            r, g, b = pix[j, i] # for some reason, it is rotated, so i just inverted it
+            key = f'{r},{g},{b}'
+            best_block_id = hashmap_colors[key]
+            blocks.append(best_block_id)
 
-            # cache the colors, so the math doesn't repeat over and over if colors repeat
-            # key = f'{r},{g},{b}'
-            # if key in found_rgb_blocks:
-            #     blocks.append(found_rgb_blocks[key])
-            # else:
-            #     best_block_id = find_best_suitable_block(
-            #         database.shaded_colors[4:], # exclude transparent shaded colors
-            #         RGBColor(r, g, b)
-            #     )
-            #     blocks.append(best_block_id)
-            #     found_rgb_blocks[key] = best_block_id
+    end = time.time()
+    print('Time to find all +16k best combinations:', end - start)
     
     # encode into a map nbt
-    # nbt_file =  encode_into_map_nbt(blocks)
+    nbt_file =  encode_into_map_nbt(blocks)
 
     # encode into dat
     # print(nbt_file)
-    # dat_file = nbt_to_dat(nbt_file)
+    dat_file = nbt_to_dat(nbt_file)
 
     # return the dat file as a buffer
-    # output_dat_path = os.path.join(OUTPUT_DIR, 'map_1.dat')
-    # save_dat_file(dat_file, output_dat_path)
+    output_dat_path = os.path.join(OUTPUT_DIR, 'map_1.dat')
+    save_dat_file(dat_file, output_dat_path)
 
     # best_block_id = find_best_suitable_block(database, RGBColor(255, 0, 0))
     # print(best_block_id)
