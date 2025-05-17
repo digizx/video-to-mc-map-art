@@ -1,81 +1,93 @@
+from io import BytesIO
 import os
 import subprocess
 import shutil
+from PIL import Image
 from pathlib import Path
 
 ROOT_DIR = os.path.abspath(os.curdir)
-INPUT_DIR = os.path.join(ROOT_DIR, 'src')
+SRC_DIR = os.path.join(ROOT_DIR, 'src')
 OUTPUT_DIR = os.path.join(ROOT_DIR, 'out')
 
-def transform_video(
+def read_video_and_transform(
         path_input: str = None,
-        path_output: str = None,
         out_size: str = '128',
-        out_fps: int = 40
+        out_fps: int = 40,
+        codec : str = 'mp4'
     ):
     """
-    Function that takes information of an input video and produces
-    a new video using FFMPEG
+    Reads a video suing FFmpeg and returns the result as a BytesIO buffer.
     """
+    buffer = BytesIO()
 
     command = [
         'ffmpeg',
-        '-y',  # overwrite output
         '-i', path_input,
         '-vf', 'crop=\'min(in_w\\,in_h)\':\'min(in_w\\,in_h)\',scale={0}:{0}:flags=spline'.format(out_size), # spline is the best looking one
         '-r', str(out_fps),
-        path_output,
-        '-hide_banner',
-        '-loglevel', 'error'
+        '-f', codec,
+        '-movflags', 'frag_keyframe+empty_moov', # Required form streaming output
+        '-preset', 'ultrafast',
+        '-loglevel', 'error',
+        'pipe:1' # Output to stdout
     ]
 
-    subprocess.run(command, check=True)
+    process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-def video_to_frames(
-    path_input: str = None,
+    if process.returncode != 0:
+        raise RuntimeError('FFmpeg error:', process.stderr.decode())
+
+    buffer.write(process.stdout)
+    buffer.seek(0)
+    return buffer
+
+def video_to_frame_buffers(
+        video_buffer: BytesIO
     ):
     """
-    Function that receives a video and outputs all it's frames
+    Reads a video bfufer, uses FFmpeg to extract frames, and returns a list of BytesIO images.
     """
-    output_pattern = os.path.join(OUTPUT_DIR, 'frames', 'out%d.png')
-
-    frames_dir = os.path.join(OUTPUT_DIR, 'frames')
-    os.makedirs(frames_dir, exist_ok=True)
-
     command = [
         'ffmpeg',
-        '-i', path_input,
-        output_pattern,
-        '-hide_banner',
-        '-loglevel', 'error'
+        '-i', 'pipe:0',
+        '-f', 'image2pipe',
+        '-vcodec', 'png',
+        '-loglevel', 'error',
+        'pipe:1'
     ]
 
-    subprocess.run(command, check=True)
+    process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    stdout, _ = process.communicate(input=video_buffer.read())
 
-def clean_up_out():
-    """
-    Function that deletes all the files and folders inside the folder out
-    """
-    shutil.rmtree(OUTPUT_DIR)
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    # PNG file signature
+    PNG_SIG = b'\x89PNG\r\n\x1a\n'
+    frames = []
+
+    start = 0
+    while True:
+        start = stdout.find(PNG_SIG, start)
+        if start == -1:
+            break
+        end = stdout.find(PNG_SIG, start + len(PNG_SIG))
+        if end == -1:
+            chunk = stdout[start:]
+            start = len(stdout)
+        else:
+            chunk = stdout[start:end]
+            start = end
+
+        buffer = BytesIO(chunk)
+        frames.append(buffer)
+            
+    return frames
+
 
 if (__name__ == "__main__"):
+    path_video = os.path.join(SRC_DIR, 'odore_china_test.mp4')
 
-    os.makedirs(INPUT_DIR, exist_ok=True)
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    video_buf = read_video_and_transform(path_video)
+    frames = video_to_frame_buffers(video_buf)
 
-    clean_up_out()
-
-    path_input_tr = os.path.join(INPUT_DIR, 'odore_china_test.mp4')
-    path_output_tr = os.path.join(OUTPUT_DIR, 'temp.mp4')
-
-    transform_video(
-        path_input=path_input_tr,
-        path_output=path_output_tr
-    )
-
-    path_input_vf = os.path.join(OUTPUT_DIR, 'temp.mp4')
-
-    video_to_frames(
-        path_input=path_input_vf
-    )
+    for i, buf in enumerate(frames):
+        img = Image.open(buf)
+        print(f'Frame {i}: {img.size}')
