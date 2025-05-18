@@ -1,31 +1,33 @@
 import gzip
-import io
 import json
 import os
 import time
+
+from config import SRC_DIR, OUT_DIR
+from numpy import int8
+from utils.DatUtils import DatUtils
+from utils.FfmpegUtils import FfmpegUtils
+from utils.NbtUtils import NbtUtils
+from utils.ReadImagePixelsUtils import ReadImagePixelsUtils
 from zipfile import ZipFile
 
-from numpy import int8
-from utils.dat import nbt_to_dat, save_dat_file
-from utils.nbt import encode_into_map_nbt
-from utils.read_image_pixels import read_image_pixels
-from utils.ffmpeg import read_video_and_transform, video_to_frame_buffers
-
 def main():
-    ROOT_DIR = os.path.abspath(os.curdir)
-    SRC_DIR = os.path.join(ROOT_DIR, 'src')
-    OUTPUT_DIR = os.path.join(ROOT_DIR, 'out')
+    # Utils used
+    dat_utils = DatUtils()
+    ffmpeg_utils = FfmpegUtils()
+    nbt_utils = NbtUtils()
+    pixels_utils = ReadImagePixelsUtils()
 
     # Output related
     dat_files = []
-    path_output = os.path.join(OUTPUT_DIR, 'maps.zip')
+    path_output = os.path.join(OUT_DIR, 'maps.zip')
 
     # load video into frames
 
     path_video = os.path.join(SRC_DIR, 'odore_china_test.mp4')
 
-    video_buf = read_video_and_transform(path_video)
-    frames = video_to_frame_buffers(video_buf)
+    video_buf = ffmpeg_utils.read_video_and_transform(path_video)
+    frames = ffmpeg_utils.video_to_frame_buffers(video_buf)
 
     # read hashmap colors dictionary
     start = time.time()
@@ -43,7 +45,7 @@ def main():
     for index, frame in enumerate(frames):
 
         start = time.time()
-        pix, w, h = read_image_pixels(frame)
+        pix, w, h = pixels_utils.read_image_pixels(frame)
 
         # look for each color in the hash map
         blocks : list[int8] = []
@@ -59,10 +61,10 @@ def main():
         print(f'Time to load frame {index}:', end - start)
 
         # encode into a map nbt
-        nbt_file = encode_into_map_nbt(blocks)
+        nbt_file = nbt_utils.encode_into_map_nbt(blocks)
 
         # encode into dat
-        dat_file = nbt_to_dat(nbt_file)
+        dat_file = dat_utils.nbt_to_dat(nbt_file)
 
         # save into a list
         dat_files.append(dat_file)

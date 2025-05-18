@@ -2,13 +2,10 @@ import os
 import json
 from typing import final
 
+from config import SRC_DIR
 from numpy import clip, uint8
 from models.MinecraftColor import MinecraftColor
 from models.RGBColor import RGBColor
-
-ROOT_DIR = os.path.abspath(os.curdir)
-SRC_DIR = os.path.join(ROOT_DIR, 'src')
-OUTPUT_DIR = os.path.join(ROOT_DIR, 'out')
 
 class db:
     def __init__(self):
