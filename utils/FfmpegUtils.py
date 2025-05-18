@@ -1,5 +1,6 @@
 import os
 import subprocess
+import time
 
 from config import ROOT_DIR, SRC_DIR, OUT_DIR
 from io import BytesIO
@@ -19,6 +20,7 @@ class FfmpegUtils():
         """
         Reads a video suing FFmpeg and returns the result as a BytesIO buffer.
         """
+        start = time.time()
         buffer = BytesIO()
 
         command = [
@@ -29,9 +31,11 @@ class FfmpegUtils():
             '-f', codec,
             '-movflags', 'frag_keyframe+empty_moov', # Required form streaming output
             '-preset', 'ultrafast',
-            '-loglevel', 'error',
+            # '-loglevel', 'error',
             'pipe:1' # Output to stdout
         ]
+
+        print('Processing video...')
 
         process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -40,6 +44,10 @@ class FfmpegUtils():
 
         buffer.write(process.stdout)
         buffer.seek(0)
+
+        end = time.time()
+        print('Time video processing:', end - start)
+
         return buffer
 
     def video_to_frame_buffers(
@@ -54,9 +62,12 @@ class FfmpegUtils():
             '-i', 'pipe:0',
             '-f', 'image2pipe',
             '-vcodec', 'png',
-            '-loglevel', 'error',
+            # '-loglevel', 'error',
             'pipe:1'
         ]
+
+        start = time.time()
+        print('Processing frames...')
 
         process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         stdout, _ = process.communicate(input=video_buffer.read())
@@ -80,6 +91,9 @@ class FfmpegUtils():
 
             buffer = BytesIO(chunk)
             frames.append(buffer)
+
+        end = time.time()
+        print('Time video processing:', end - start)
                 
         return frames
 

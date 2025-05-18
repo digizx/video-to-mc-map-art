@@ -1,3 +1,4 @@
+import argparse
 import gzip
 import json
 import os
@@ -11,7 +12,7 @@ from utils.NbtUtils import NbtUtils
 from utils.ReadImagePixelsUtils import ReadImagePixelsUtils
 from zipfile import ZipFile
 
-def main():
+def main(args):
     # Utils used
     dat_utils = DatUtils()
     ffmpeg_utils = FfmpegUtils()
@@ -20,11 +21,13 @@ def main():
 
     # Output related
     dat_files = []
-    path_output = os.path.join(OUT_DIR, 'maps.zip')
+    path_output = os.path.join(OUT_DIR, f'maps_{args.name}.zip')
 
     # load video into frames
 
-    path_video = os.path.join(SRC_DIR, 'odore_china_test.mp4')
+    path_video = os.path.join(args.path)
+    if not os.path.isfile(path_video):
+        raise Exception('The video wasn\'t found. Send a correct video')
 
     video_buf = ffmpeg_utils.read_video_and_transform(path_video)
     frames = ffmpeg_utils.video_to_frame_buffers(video_buf)
@@ -80,4 +83,14 @@ def main():
     print('Total time for processing the video:', end_loop - start_loop)
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-n', '--name', help='Name for the zip file that is going to be saved')
+    parser.add_argument('-p', '--path', help='Path of the file that is going to be processed into Minecraft format')
+
+    args = parser.parse_args()
+
+    if args.name is None or args.path is None:
+        raise Exception('Name or path wasn\'t added as an argument.')
+
+    main(args)
