@@ -39,9 +39,10 @@ class RgbUtils():
         return int8(input_id) if input_id < 128 else int8(input_id - 256)
 
     def find_best_suitable_block(
+        self,
         colors : list[MinecraftColor], 
         input_rgb : RGBColor
-    ) -> int8:
+        ) -> int8:
         """
         Function that iterates through all available block colors and finds
         the most suitable option, then returns the respective ID that fits the best.
@@ -49,14 +50,14 @@ class RgbUtils():
         best_block_id : uint8 = 0
         closest_match = 255 # 0 is the best possible match. There's no diff between RGB colors
         for color in colors:
-            diff = diff_rgb_color(input_rgb, color.rgb)
+            diff = self.diff_rgb_color(input_rgb, color.rgb)
             if diff <= closest_match:
                 best_block_id = color.id
                 closest_match = diff
                 if closest_match <= 0:
                     break
         
-        final_best_block_id : int8 = best_block_sorcery(best_block_id)
+        final_best_block_id : int8 = self.best_block_sorcery(best_block_id)
 
         return final_best_block_id
     
