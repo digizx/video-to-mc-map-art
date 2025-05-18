@@ -3,6 +3,8 @@
 */*.mp4
 *.png
 */*.png
+*.zip
+*/*.zip
 
 # Don't add python stuff
 *venv

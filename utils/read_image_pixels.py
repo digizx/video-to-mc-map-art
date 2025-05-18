@@ -1,3 +1,4 @@
+from io import BytesIO
 import os
 import PIL
 from PIL import ImageCms
@@ -15,9 +16,9 @@ def print_image_pixels(
             print(pixels_array[i, j])
 
 def read_image_pixels(
-    path: str = None
+        buffer: BytesIO
     ):
-    im = PIL.Image.open(path).convert('RGB')
+    im = PIL.Image.open(buffer).convert('RGB')
     pix = im.load()
     w, h = im.size
 
