@@ -11,17 +11,20 @@ class Direction(Enum):
 class DatapackGeneratorUtils():
     def __init__(
         self,
-        total_frames: int,
-        x: int,
-        y: int,
-        z: int,
-        direction: Direction
+        initial_map_id: int = 0,
+        total_frames: int = 0,
+        x: int = 0,
+        y: int = 0,
+        z: int = 0,
+        direction: Direction = None
         ):
+        self.initial_map_id = initial_map_id
         self.total_frames = total_frames
         self.x = x
         self.y = y
         self.z = z
         self.direction = direction
+
         # check if it's either x or y
         self.x_axis: bool = True
         if self.direction == Direction.NORTH or self.direction == Direction.SOUTH:
@@ -34,7 +37,6 @@ class DatapackGeneratorUtils():
         self.mult = 1 # My brain isn't brain enough to name this properly
         if self.direction == Direction.NORTH or self.direction == Direction.WEST:
             self.mult = -1
-
 
     def generate_datapack(self):
         self.generate_place_initial_blocks()
@@ -130,10 +132,12 @@ class DatapackGeneratorUtils():
         for index in range(self.total_frames):
             index *= self.mult
             for command in commands:
+                parsed_command = ''
                 if self.x_axis:
-                    parsed_commands.append(command.format(self.x + index))
+                    parsed_command = command.format(self.x + index)
                 else:
-                    parsed_commands.append(command.format(self.y + index))
+                    parsed_command = command.format(self.y + index)
+                parsed_commands.append(parsed_command)
 
         # store commands in file
         path_place_initial_blocks = os.path.join(OUT_DIR, 'place_initial_blocks.mcfunction')
@@ -143,28 +147,46 @@ class DatapackGeneratorUtils():
                 file.write(command + '\n')
 
     def summon_item_frames(self):
+        # Item Frames have 6 possible places they face.
+        # We're deciding the facing direction according the direction requested
+        # Double bracket is used in order to escape literal curly braces in a format string avoiding python interpreter
+        facing_direction = 0
+        x = self.x
+        y = self.y
+        z = self.z + 1
+        command = 'summon item_frame {x} {z} {y} {{Facing:{facing}b, Item:{{id: "minecraft:filled_map", components:{{"minecraft:map_id":{map_id}}}}}}}'
         if self.direction == Direction.NORTH:
             facing_direction = 5
+            x = self.x + 1
         if self.direction == Direction.EAST:
             facing_direction = 3
+            y = self.y + 1
         if self.direction == Direction.SOUTH:
             facing_direction = 4
+            x = self.x - 1
         if self.direction == Direction.WEST:
             facing_direction = 2
-        
-        command = (
-            'summon item_frame ~ ~ ~ {Facing:' +
-            facing_direction +
-            'b, Item:{id: "minecraft:filled_map", components:{"minecraft:map_id":0}}}'
-        )
+            y = self.y - 1
 
         parsed_commands: list[str] = []
-        for index in self.total_frames:
-            index *= self.mult
+        for index in range(self.total_frames):
+            parsed_command = ''
             if self.x_axis:
-                parsed_command = command.format(self.x + index)
+                parsed_command = command.format(
+                    x=(x + (self.mult * index)), 
+                    y=y, 
+                    z=z, 
+                    facing=facing_direction, 
+                    map_id=(self.initial_map_id + index)
+                )
             else:
-                parsed_command = command.format(self.y + index)
+                parsed_command = command.format(
+                    x=x, 
+                    y=(y + (self.mult * index)), 
+                    z=z, 
+                    facing=facing_direction, 
+                    map_id=(self.initial_map_id + index)
+                )
             parsed_commands.append(parsed_command)
 
         # store commands in file
@@ -187,3 +209,4 @@ if __name__ == '__main__':
     )
 
     datapack_utils.generate_place_initial_blocks()
+    datapack_utils.summon_item_frames()
