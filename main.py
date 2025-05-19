@@ -82,11 +82,20 @@ def main(args):
 
     print('Total time for processing the video:', end_loop - start_loop)
 
+    # Generate datapack
+    if args.x is None or args.y is None or args.y is None:
+        raise Exception('Datapack wasn\t generated because coordinates weren\'t specified.')
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-n', '--name', help='Name for the zip file that is going to be saved')
     parser.add_argument('-p', '--path', help='Path of the file that is going to be processed into Minecraft format')
+
+    parser.add_argument('-x', '--x', help='X coordinates in Minecraft')
+    parser.add_argument('-y', '--y', help='Y coordinates in Minecraft')
+    parser.add_argument('-z', '--z', help='Z coordinates in Minecraft')
+    parser.add_argument('-i', '--index', help='Indicates the first map number it\'ll be saved. By default is 0.', default=0)
 
     args = parser.parse_args()
 

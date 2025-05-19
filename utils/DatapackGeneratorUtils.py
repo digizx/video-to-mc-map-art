@@ -1,4 +1,6 @@
+import io
 import os
+import zipfile
 from config import ROOT_DIR, SRC_DIR, OUT_DIR
 from enum import Enum
 
@@ -11,6 +13,7 @@ class Direction(Enum):
 class DatapackGeneratorUtils():
     def __init__(
         self,
+        name: str = 'default',
         initial_map_id: int = 0,
         total_frames: int = 0,
         x: int = 0,
@@ -18,6 +21,7 @@ class DatapackGeneratorUtils():
         z: int = 0,
         direction: Direction = None
         ):
+        self.name = name
         self.initial_map_id = initial_map_id
         self.total_frames = total_frames
         self.x = x
@@ -39,8 +43,24 @@ class DatapackGeneratorUtils():
             self.mult = -1
 
     def generate_datapack(self):
-        self.generate_place_initial_blocks()
-        self.summon_item_frames()
+        buffer_blocks = self.generate_place_initial_blocks()
+        buffer_item_frames = self.summon_item_frames()
+
+        path_datapack = os.path.join(OUT_DIR, f'datapack_{self.name}.zip')
+        with zipfile.ZipFile(path_datapack, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            # Write mcmeta
+            content_mcmeta = '{ "pack": { "description": "Animation as Map Art in Minecraft!!!!!!!!", "pack_format": 71 } }'
+            zipf.writestr('pack.mcmeta', data=content_mcmeta)
+
+            # Write mfcuntions
+            path_mcfunction = os.path.join('data', 'digizx', 'function')
+            path_initial_blocks = os.path.join(path_mcfunction, 'place_initial_blocks.mcfunction')
+            path_summon_item_frames = os.path.join(path_mcfunction, 'summon_item_frames.mcfunction')
+
+            zipf.writestr(path_initial_blocks, buffer_blocks.getvalue())
+            zipf.writestr(path_summon_item_frames, buffer_item_frames.getvalue())
+            
+
 
     def generate_place_initial_blocks(self):
         commands : list[str] = []
@@ -139,12 +159,14 @@ class DatapackGeneratorUtils():
                     parsed_command = command.format(self.y + index)
                 parsed_commands.append(parsed_command)
 
-        # store commands in file
-        path_place_initial_blocks = os.path.join(OUT_DIR, 'place_initial_blocks.mcfunction')
+        # Store in a buffer and return
+        buffer = io.BytesIO()
 
-        with open(path_place_initial_blocks, 'w') as file:
-            for command in parsed_commands:
-                file.write(command + '\n')
+        for cmd in parsed_commands:
+            buffer.write((command + '\n').encode('utf-8'))
+        buffer.seek(0)
+
+        return buffer
 
     def summon_item_frames(self):
         # Item Frames have 6 possible places they face.
@@ -189,12 +211,14 @@ class DatapackGeneratorUtils():
                 )
             parsed_commands.append(parsed_command)
 
-        # store commands in file
-        path_place_initial_blocks = os.path.join(OUT_DIR, 'summon_item_frames.mcfunction')
+        # Store in a buffer and return
+        buffer = io.BytesIO()
 
-        with open(path_place_initial_blocks, 'w') as file:
-            for command in parsed_commands:
-                file.write(command + '\n')
+        for cmd in parsed_commands:
+            buffer.write((command + '\n').encode('utf-8'))
+        buffer.seek(0)
+
+        return buffer
 
     def get_command_set_block(self, block_name, x, y, z):
         return f'setblock {x} {z} {y} {block_name}'
@@ -208,5 +232,4 @@ if __name__ == '__main__':
         direction=Direction.WEST
     )
 
-    datapack_utils.generate_place_initial_blocks()
-    datapack_utils.summon_item_frames()
+    datapack_utils.generate_datapack()
