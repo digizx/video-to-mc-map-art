@@ -2,13 +2,8 @@ import io
 import os
 import zipfile
 from config import ROOT_DIR, SRC_DIR, OUT_DIR
-from enum import Enum
 
-class Direction(Enum):
-    NORTH = 1
-    EAST = 2
-    SOUTH = 3
-    WEST = 4
+from enums.DirectionEnum import DirectionEnum
 
 class DatapackGeneratorUtils():
     def __init__(
@@ -19,7 +14,7 @@ class DatapackGeneratorUtils():
         x: int = 0,
         y: int = 0,
         z: int = 0,
-        direction: Direction = None
+        direction: DirectionEnum = None
         ):
         self.name = name
         self.initial_map_id = initial_map_id
@@ -31,7 +26,7 @@ class DatapackGeneratorUtils():
 
         # check if it's either x or y
         self.x_axis: bool = True
-        if self.direction == Direction.NORTH or self.direction == Direction.SOUTH:
+        if self.direction == DirectionEnum.NORTH.value or self.direction == DirectionEnum.SOUTH.value:
             self.x_axis = False
 
         # {0} the northest, Y decreases more
@@ -39,7 +34,7 @@ class DatapackGeneratorUtils():
         # {0} the southest, Y increases more
         # {0} the eastest, X increases more
         self.mult = 1 # My brain isn't brain enough to name this properly
-        if self.direction == Direction.NORTH or self.direction == Direction.WEST:
+        if self.direction == DirectionEnum.NORTH.value or self.direction == DirectionEnum.WEST.value:
             self.mult = -1
 
     def generate_datapack(self):
@@ -68,7 +63,7 @@ class DatapackGeneratorUtils():
         commands : list[str] = []
 
         # set commands required for each frame
-        if self.direction == Direction.NORTH:
+        if self.direction == DirectionEnum.NORTH.value:
             # top
             commands.append(self.get_command_set_block('quartz_block',  self.x,     '{0}', self.z + 1)) # {0} the northest, Y decreases more
             commands.append(self.get_command_set_block('air',           self.x + 1, '{0}', self.z + 1))
@@ -88,7 +83,7 @@ class DatapackGeneratorUtils():
             commands.append(self.get_command_set_block('packed_ice', self.x + 2, '{0}', self.z - 1))
             commands.append(self.get_command_set_block('packed_ice', self.x + 3, '{0}', self.z - 1))
             commands.append(self.get_command_set_block('packed_ice', self.x + 4, '{0}', self.z - 1))
-        if self.direction == Direction.EAST:
+        if self.direction == DirectionEnum.EAST.value:
             # top
             commands.append(self.get_command_set_block('quartz_block',  '{0}', self.y,     self.z + 1)) # {0} the westest, X decreases more
             commands.append(self.get_command_set_block('air',           '{0}', self.y + 1, self.z + 1))
@@ -108,7 +103,7 @@ class DatapackGeneratorUtils():
             commands.append(self.get_command_set_block('packed_ice', '{0}', self.y + 2, self.z - 1))
             commands.append(self.get_command_set_block('packed_ice', '{0}', self.y + 3, self.z - 1))
             commands.append(self.get_command_set_block('packed_ice', '{0}', self.y + 4, self.z - 1))
-        if self.direction == Direction.SOUTH:
+        if self.direction == DirectionEnum.SOUTH.value:
             # top
             commands.append(self.get_command_set_block('quartz_block',  self.x,     '{0}', self.z + 1)) # {0} the southest, Y increases more
             commands.append(self.get_command_set_block('air',           self.x - 1, '{0}', self.z + 1))
@@ -128,7 +123,7 @@ class DatapackGeneratorUtils():
             commands.append(self.get_command_set_block('packed_ice', self.x - 2, '{0}', self.z - 1))
             commands.append(self.get_command_set_block('packed_ice', self.x - 3, '{0}', self.z - 1))
             commands.append(self.get_command_set_block('packed_ice', self.x - 4, '{0}', self.z - 1))
-        if self.direction == Direction.WEST:
+        if self.direction == DirectionEnum.WEST.value:
             # top
             commands.append(self.get_command_set_block('quartz_block', '{0}', self.y,     self.z + 1)) # {0} the eastest, X increases more
             commands.append(self.get_command_set_block('air',          '{0}', self.y - 1, self.z + 1))
@@ -179,16 +174,16 @@ class DatapackGeneratorUtils():
         y = self.y
         z = self.z + 1
         command = 'summon item_frame {x} {z} {y} {{Facing:{facing}b, Item:{{id: "minecraft:filled_map", components:{{"minecraft:map_id":{map_id}}}}}}}'
-        if self.direction == Direction.NORTH:
+        if self.direction == DirectionEnum.NORTH.value:
             facing_direction = 5
             x = self.x + 1
-        if self.direction == Direction.EAST:
+        if self.direction == DirectionEnum.EAST.value:
             facing_direction = 3
             y = self.y + 1
-        if self.direction == Direction.SOUTH:
+        if self.direction == DirectionEnum.SOUTH.value:
             facing_direction = 4
             x = self.x - 1
-        if self.direction == Direction.WEST:
+        if self.direction == DirectionEnum.WEST.value:
             facing_direction = 2
             y = self.y - 1
 
@@ -231,7 +226,7 @@ if __name__ == '__main__':
         x=-43,
         y=122,
         z=-60,
-        direction=Direction.WEST
+        direction=DirectionEnum.WEST.value
     )
 
     datapack_utils.generate_datapack()

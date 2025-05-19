@@ -6,6 +6,8 @@ import time
 
 from config import SRC_DIR, OUT_DIR
 from numpy import int8
+from enums.DirectionEnum import DirectionEnum
+from utils.DatapackGeneratorUtils import DatapackGeneratorUtils
 from utils.DatUtils import DatUtils
 from utils.FfmpegUtils import FfmpegUtils
 from utils.NbtUtils import NbtUtils
@@ -14,77 +16,101 @@ from zipfile import ZipFile
 
 def main(args):
     # Utils used
-    dat_utils = DatUtils()
-    ffmpeg_utils = FfmpegUtils()
-    nbt_utils = NbtUtils()
-    pixels_utils = ReadImagePixelsUtils()
+    # dat_utils = DatUtils()
+    # ffmpeg_utils = FfmpegUtils()
+    # nbt_utils = NbtUtils()
+    # pixels_utils = ReadImagePixelsUtils()
 
-    # Output related
-    dat_files = []
-    path_output = os.path.join(OUT_DIR, f'maps_{args.name}.zip')
+    # # Output related
+    # dat_files = []
+    # path_output = os.path.join(OUT_DIR, f'maps_{args.name}.zip')
 
-    # load video into frames
+    # # load video into frames
 
-    path_video = os.path.join(args.path)
-    if not os.path.isfile(path_video):
-        raise Exception('The video wasn\'t found. Send a correct video')
+    # path_video = os.path.join(args.path)
+    # if not os.path.isfile(path_video):
+    #     raise Exception('The video wasn\'t found. Send a correct video')
 
-    video_buf = ffmpeg_utils.read_video_and_transform(path_video)
-    frames = ffmpeg_utils.video_to_frame_buffers(video_buf)
+    # video_buf = ffmpeg_utils.read_video_and_transform(path_video)
+    # frames, amount_frames = ffmpeg_utils.video_to_frame_buffers(video_buf)
 
-    # read hashmap colors dictionary
-    start = time.time()
-    path_hashmap_colors = os.path.join(SRC_DIR, 'hashmap_colors.json.gz')
-    with gzip.open(path_hashmap_colors, 'rt', encoding='utf-8') as file:
-        hashmap_colors = json.load(file)
-    end = time.time()
+    # # read hashmap colors dictionary
 
-    print('Time to load colors hashmap:', end - start)
+    # start = time.time()
+    # path_hashmap_colors = os.path.join(SRC_DIR, 'hashmap_colors.json.gz')
+    # with gzip.open(path_hashmap_colors, 'rt', encoding='utf-8') as file:
+    #     hashmap_colors = json.load(file)
+    # end = time.time()
 
-    # iterate through all frames
+    # print('Time to load colors hashmap:', end - start)
 
-    start_loop = time.time()
+    # # iterate through all frames
 
-    for index, frame in enumerate(frames):
+    # start_loop = time.time()
 
-        start = time.time()
-        pix, w, h = pixels_utils.read_image_pixels(frame)
+    # for index, frame in enumerate(frames):
 
-        # look for each color in the hash map
-        blocks : list[int8] = []
-        for i in range(w):
-            # print('Current row:', i + 1)
-            for j in range(h):
-                r, g, b = pix[j, i] # the list fills up column by column, so the axis are inverted
-                key = f'{r},{g},{b}'
-                best_block_id = hashmap_colors[key]
-                blocks.append(best_block_id)
-        end = time.time()
+    #     start = time.time()
+    #     pix, w, h = pixels_utils.read_image_pixels(frame)
 
-        print(f'Time to load frame {index}:', end - start)
+    #     # look for each color in the hash map
+    #     blocks : list[int8] = []
+    #     for i in range(w):
+    #         # print('Current row:', i + 1)
+    #         for j in range(h):
+    #             r, g, b = pix[j, i] # the list fills up column by column, so the axis are inverted
+    #             key = f'{r},{g},{b}'
+    #             best_block_id = hashmap_colors[key]
+    #             blocks.append(best_block_id)
+    #     end = time.time()
 
-        # encode into a map nbt
-        nbt_file = nbt_utils.encode_into_map_nbt(blocks)
+    #     print(f'Time to load frame {index}/{amount_frames}:', end - start)
 
-        # encode into dat
-        dat_file = dat_utils.nbt_to_dat(nbt_file)
+    #     # encode into a map nbt
+    #     nbt_file = nbt_utils.encode_into_map_nbt(blocks)
 
-        # save into a list
-        dat_files.append(dat_file)
+    #     # encode into dat
+    #     dat_file = dat_utils.nbt_to_dat(nbt_file)
 
-    # Save in a zip file
-    with ZipFile(path_output, 'w') as zipf:
-        for index, dat_file in enumerate(dat_files):
-            filename = f'map_{index}.dat'
-            zipf.writestr(filename, dat_file)
+    #     # save into a list
+    #     dat_files.append(dat_file)
 
-    end_loop = time.time()
+    # # Save in a zip file
+    # with ZipFile(path_output, 'w') as zipf:
+    #     for index, dat_file in enumerate(dat_files):
+    #         filename = f'map_{index + int(args.index)}.dat'
+    #         zipf.writestr(filename, dat_file)
 
-    print('Total time for processing the video:', end_loop - start_loop)
+    # end_loop = time.time()
+
+    # print('Total time for processing the video:', end_loop - start_loop)
+
+    start_datapack_time = time.time()
 
     # Generate datapack
-    if args.x is None or args.y is None or args.y is None:
-        raise Exception('Datapack wasn\t generated because coordinates weren\'t specified.')
+    if args.x is None or args.y is None or args.y is None or args.direction is None:
+        raise Exception('Datapack wasn\t generated because coordinates or direction weren\'t specified.')
+
+    # Get Direction Enum value based on the input
+    args_direction = args.direction.upper()
+    direction = DirectionEnum[args_direction].value
+
+    amount_frames = 8764
+    datapack_utils = DatapackGeneratorUtils(
+        initial_map_id=int(args.index),
+        name=args.name,
+        total_frames=amount_frames if args.frames is None else int(args.frames),
+        x=int(args.x),
+        y=int(args.y),
+        z=int(args.z),
+        direction=direction
+    )
+    datapack_utils.generate_datapack()
+
+    end_datapack_time = time.time()
+
+    print('Total time for processing the datapack:', end_datapack_time - start_datapack_time)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -95,7 +121,10 @@ if __name__ == '__main__':
     parser.add_argument('-x', '--x', help='X coordinates in Minecraft')
     parser.add_argument('-y', '--y', help='Y coordinates in Minecraft')
     parser.add_argument('-z', '--z', help='Z coordinates in Minecraft')
+    parser.add_argument('-d', '--direction', help='The options are North, East, South and West. If none selected then the datapack won\'nt be generated.')
+
     parser.add_argument('-i', '--index', help='Indicates the first map number it\'ll be saved. By default is 0.', default=0)
+    parser.add_argument('-f', '--frames', help='Indicates the amount of frames that will be shown in the game. By default is max.', default=None)
 
     args = parser.parse_args()
 

@@ -76,6 +76,7 @@ class FfmpegUtils():
         PNG_SIG = b'\x89PNG\r\n\x1a\n'
         frames = []
 
+        amount_frames = 0
         start = 0
         while True:
             start = stdout.find(PNG_SIG, start)
@@ -88,14 +89,15 @@ class FfmpegUtils():
             else:
                 chunk = stdout[start:end]
                 start = end
-
+            
+            amount_frames += 1
             buffer = BytesIO(chunk)
             frames.append(buffer)
 
         end = time.time()
         print('Time video processing:', end - start)
                 
-        return frames
+        return frames, amount_frames
 
 if (__name__ == "__main__"):
     ffmpeg_utils = FfmpegUtils()
