@@ -53,14 +53,16 @@ class DatapackGeneratorUtils():
             zipf.writestr('pack.mcmeta', data=content_mcmeta)
 
             # Write mfcuntions
-            path_mcfunction = os.path.join('data', 'digizx', 'function')
+            path_mcfunction = os.path.join('data', self.name.lower(), 'function')
             path_initial_blocks = os.path.join(path_mcfunction, 'place_initial_blocks.mcfunction')
             path_summon_item_frames = os.path.join(path_mcfunction, 'summon_item_frames.mcfunction')
+            path_build = os.path.join(path_mcfunction, 'build.mcfunction')
+            path_clean_item_frames = os.path.join(path_mcfunction, 'clean.mcfunction')
 
             zipf.writestr(path_initial_blocks, buffer_blocks.getvalue())
             zipf.writestr(path_summon_item_frames, buffer_item_frames.getvalue())
-            
-
+            zipf.writestr(path_build, f'execute as @p run function {self.name}:place_initial_blocks\nexecute as @p run function {self.name}:summon_item_frames')
+            zipf.writestr(path_clean_item_frames, f'kill @e[type=item_frame]')
 
     def generate_place_initial_blocks(self):
         commands : list[str] = []
@@ -162,7 +164,7 @@ class DatapackGeneratorUtils():
         # Store in a buffer and return
         buffer = io.BytesIO()
 
-        for cmd in parsed_commands:
+        for command in parsed_commands:
             buffer.write((command + '\n').encode('utf-8'))
         buffer.seek(0)
 
@@ -214,7 +216,7 @@ class DatapackGeneratorUtils():
         # Store in a buffer and return
         buffer = io.BytesIO()
 
-        for cmd in parsed_commands:
+        for command in parsed_commands:
             buffer.write((command + '\n').encode('utf-8'))
         buffer.seek(0)
 
