@@ -22,9 +22,22 @@ class DatapackGeneratorUtils():
         self.y = y
         self.z = z
         self.direction = direction
+        # check if it's either x or y
+        self.x_axis: bool = True
+        if self.direction == Direction.NORTH or self.direction == Direction.SOUTH:
+            self.x_axis = False
+
+        # {0} the northest, Y decreases more
+        # {0} the westest, X decreases more
+        # {0} the southest, Y increases more
+        # {0} the eastest, X increases more
+        self.mult = 1 # My brain isn't brain enough to name this properly
+        if self.direction == Direction.NORTH or self.direction == Direction.WEST:
+            self.mult = -1
+
 
     def generate_datapack(self):
-        self.place_initial_blocks()
+        self.generate_place_initial_blocks()
         self.summon_item_frames()
 
     def generate_place_initial_blocks(self):
@@ -112,25 +125,12 @@ class DatapackGeneratorUtils():
             commands.append(self.get_command_set_block('packed_ice', '{0}', self.y - 3, self.z - 1))
             commands.append(self.get_command_set_block('packed_ice', '{0}', self.y - 4, self.z - 1))
 
-        # {0} the northest, Y decreases more
-        # {0} the westest, X decreases more
-        # {0} the southest, Y increases more
-        # {0} the eastest, X increases more
-        mult = 1
-        if self.direction == Direction.NORTH or self.direction == Direction.WEST:
-            mult = -1
-        
-        # check if it's either x or y
-        x_axis: bool = True
-        if self.direction == Direction.NORTH or self.direction == Direction.SOUTH:
-            x_axis = False
-
         # set the commands
         parsed_commands = []
         for index in range(self.total_frames):
-            index *= mult
+            index *= self.mult
             for command in commands:
-                if x_axis:
+                if self.x_axis:
                     parsed_commands.append(command.format(self.x + index))
                 else:
                     parsed_commands.append(command.format(self.y + index))
@@ -143,7 +143,36 @@ class DatapackGeneratorUtils():
                 file.write(command + '\n')
 
     def summon_item_frames(self):
-        pass
+        if self.direction == Direction.NORTH:
+            facing_direction = 5
+        if self.direction == Direction.EAST:
+            facing_direction = 3
+        if self.direction == Direction.SOUTH:
+            facing_direction = 4
+        if self.direction == Direction.WEST:
+            facing_direction = 2
+        
+        command = (
+            'summon item_frame ~ ~ ~ {Facing:' +
+            facing_direction +
+            'b, Item:{id: "minecraft:filled_map", components:{"minecraft:map_id":0}}}'
+        )
+
+        parsed_commands: list[str] = []
+        for index in self.total_frames:
+            index *= self.mult
+            if self.x_axis:
+                parsed_command = command.format(self.x + index)
+            else:
+                parsed_command = command.format(self.y + index)
+            parsed_commands.append(parsed_command)
+
+        # store commands in file
+        path_place_initial_blocks = os.path.join(OUT_DIR, 'summon_item_frames.mcfunction')
+
+        with open(path_place_initial_blocks, 'w') as file:
+            for command in parsed_commands:
+                file.write(command + '\n')
 
     def get_command_set_block(self, block_name, x, y, z):
         return f'setblock {x} {z} {y} {block_name}'
