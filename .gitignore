@@ -15,3 +15,6 @@
 # Don't add Minecraft functions
 *.mcfunction
 */*.mcfunction
+
+# Ignore big elements
+/src/hashmap_colors.json
