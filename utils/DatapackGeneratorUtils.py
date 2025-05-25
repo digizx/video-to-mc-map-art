@@ -42,8 +42,11 @@ class DatapackGeneratorUtils():
             self.mult = -1
 
     def generate_datapack(self):
+        PLACE_BOAT_NAME: final = 'place_boat'
         PLACE_BLOCKS_NAME: final = 'place_initial_blocks'
         SUMMON_ITEM_FRAMES_NAME: final = 'summon_item_frames'
+        CLEAN_NAME: final = 'clean'
+        BUILD_NAME: final = 'build'
 
         buffer_dict_place_blocks = self.generate_place_initial_blocks()
         buffer_dict_item_frames = self.summon_item_frames()
@@ -56,17 +59,28 @@ class DatapackGeneratorUtils():
 
             # Write mfcuntions
             path_mcfunction = os.path.join('data', self.name.lower(), 'function')
-            path_build = os.path.join(path_mcfunction, 'build.mcfunction')
-            path_clean_item_frames = os.path.join(path_mcfunction, 'clean.mcfunction')
+
+            path_build = os.path.join(path_mcfunction, f'{BUILD_NAME}.mcfunction')
+            path_clean_item_frames = os.path.join(path_mcfunction, f'{CLEAN_NAME}.mcfunction')
+            path_place_boat = os.path.join(path_mcfunction, f'{PLACE_BOAT_NAME}.mcfunction')
+
+            # place boat
+            place_boat_command = self.get_place_boat_command()
+            zipf.writestr(path_place_boat, place_boat_command)
 
             # place initial blocks & summon item frames
             self.save_command_batches(zipf, path_mcfunction, buffer_dict_place_blocks, PLACE_BLOCKS_NAME)
             self.save_command_batches(zipf, path_mcfunction, buffer_dict_item_frames, SUMMON_ITEM_FRAMES_NAME)
 
             # doing both placing blocks and later summoning item frames
-            zipf.writestr(path_build, f'execute as @p run function {self.name}:{PLACE_BLOCKS_NAME}\nexecute as @p run function {self.name}:{SUMMON_ITEM_FRAMES_NAME}')
+            str_build = (
+                f'execute as @p run function {self.name}:{PLACE_BOAT_NAME}\n' +
+                f'execute as @p run function {self.name}:{PLACE_BLOCKS_NAME}\n' +
+                f'execute as @p run function {self.name}:{SUMMON_ITEM_FRAMES_NAME}\n'
+            )
+            zipf.writestr(path_build, str_build)
             
-            # cleaning str
+            # cleaning str (it doens't work properly. it only deletes the item frames in the chunks loaded for the player)
             cleaning_str = ''
             cleaning_cmd = [
                 'forceload add {x} {z}\n',
@@ -243,6 +257,36 @@ class DatapackGeneratorUtils():
             parsed_commands.append(parsed_command)
 
         return self.generate_command_batches(parsed_commands, 'summon_item_frames')
+
+    def get_place_boat_command(self) -> str:
+        command = 'summon minecraft:birch_boat {x} {y} {z} {{Rotation:[{x_rotation}f,0.0f]}}'
+        x_rotation: float = 0
+        x: float = self.x
+        y: float = self.y
+        z: float = self.z
+        if self.direction == DirectionEnum.NORTH.value:
+            x += 3.1
+            x_rotation = 180.0
+            pass
+        if self.direction == DirectionEnum.EAST.value:
+            z += 3.1
+            x_rotation = -90.0
+            pass
+        if self.direction == DirectionEnum.SOUTH.value:
+            x -= 3.1
+            x_rotation = 0
+            pass
+        if self.direction == DirectionEnum.WEST.value:
+            z -= 3.1
+            x_rotation = 90.0
+            pass
+
+        return command.format(
+            x=str(round(x, 1)),
+            y=str(round(y, 1)),
+            z=str(round(z, 1)),
+            x_rotation=str(round(x_rotation, 1))
+        )
 
     def generate_command_batches(
         self,
