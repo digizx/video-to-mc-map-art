@@ -15,75 +15,75 @@ from utils.ReadImagePixelsUtils import ReadImagePixelsUtils
 from zipfile import ZipFile
 
 def main(args):
-    # # Utils used
-    # dat_utils = DatUtils()
-    # ffmpeg_utils = FfmpegUtils()
-    # nbt_utils = NbtUtils()
-    # pixels_utils = ReadImagePixelsUtils()
+    # Utils used
+    dat_utils = DatUtils()
+    ffmpeg_utils = FfmpegUtils()
+    nbt_utils = NbtUtils()
+    pixels_utils = ReadImagePixelsUtils()
 
-    # # Output related
-    # dat_files = []
-    # path_output = os.path.join(OUT_DIR, f'maps_{args.name}.zip')
+    # Output related
+    dat_files = []
+    path_output = os.path.join(OUT_DIR, f'maps_{args.name}.zip')
 
-    # # load video into frames
+    # load video into frames
 
-    # path_video = os.path.join(args.path)
-    # if not os.path.isfile(path_video):
-    #     raise Exception('The video wasn\'t found. Send a correct video')
+    path_video = os.path.join(args.path)
+    if not os.path.isfile(path_video):
+        raise Exception('The video wasn\'t found. Send a correct video')
 
-    # video_buf = ffmpeg_utils.read_video_and_transform(path_video)
-    # frames, amount_frames = ffmpeg_utils.video_to_frame_buffers(video_buf)
+    video_buf = ffmpeg_utils.read_video_and_transform(path_video)
+    frames, amount_frames = ffmpeg_utils.video_to_frame_buffers(video_buf)
 
-    # # read hashmap colors dictionary
+    # read hashmap colors dictionary
 
-    # start = time.time()
-    # path_hashmap_colors = os.path.join(SRC_DIR, 'hashmap_colors.json.gz')
-    # with gzip.open(path_hashmap_colors, 'rt', encoding='utf-8') as file:
-    #     hashmap_colors = json.load(file)
-    # end = time.time()
+    start = time.time()
+    path_hashmap_colors = os.path.join(SRC_DIR, 'hashmap_colors.json.gz')
+    with gzip.open(path_hashmap_colors, 'rt', encoding='utf-8') as file:
+        hashmap_colors = json.load(file)
+    end = time.time()
 
-    # print('Time to load colors hashmap:', end - start)
+    print('Time to load colors hashmap:', end - start)
 
-    # # iterate through all frames
+    # iterate through all frames
 
-    # start_loop = time.time()
+    start_loop = time.time()
 
-    # for index, frame in enumerate(frames):
+    for index, frame in enumerate(frames):
 
-    #     start = time.time()
-    #     pix, w, h = pixels_utils.read_image_pixels(frame)
+        start = time.time()
+        pix, w, h = pixels_utils.read_image_pixels(frame)
 
-    #     # look for each color in the hash map
-    #     blocks : list[int8] = []
-    #     for i in range(w):
-    #         # print('Current row:', i + 1)
-    #         for j in range(h):
-    #             r, g, b = pix[j, i] # the list fills up column by column, so the axis are inverted
-    #             key = f'{r},{g},{b}'
-    #             best_block_id = hashmap_colors[key]
-    #             blocks.append(best_block_id)
-    #     end = time.time()
+        # look for each color in the hash map
+        blocks : list[int8] = []
+        for i in range(w):
+            # print('Current row:', i + 1)
+            for j in range(h):
+                r, g, b = pix[j, i] # the list fills up column by column, so the axis are inverted
+                key = f'{r},{g},{b}'
+                best_block_id = hashmap_colors[key]
+                blocks.append(best_block_id)
+        end = time.time()
 
-    #     print(f'Time to load frame {index}/{amount_frames}:', end - start)
+        print(f'Time to load frame {index}/{amount_frames}:', end - start)
 
-    #     # encode into a map nbt
-    #     nbt_file = nbt_utils.encode_into_map_nbt(blocks)
+        # encode into a map nbt
+        nbt_file = nbt_utils.encode_into_map_nbt(blocks)
 
-    #     # encode into dat
-    #     dat_file = dat_utils.nbt_to_dat(nbt_file)
+        # encode into dat
+        dat_file = dat_utils.nbt_to_dat(nbt_file)
 
-    #     # save into a list
-    #     dat_files.append(dat_file)
+        # save into a list
+        dat_files.append(dat_file)
 
-    # # Save in a zip file
-    # with ZipFile(path_output, 'w') as zipf:
-    #     for index, dat_file in enumerate(dat_files):
-    #         filename = f'map_{index + int(args.index)}.dat'
-    #         zipf.writestr(filename, dat_file)
+    # Save in a zip file
+    with ZipFile(path_output, 'w') as zipf:
+        for index, dat_file in enumerate(dat_files):
+            filename = f'map_{index + int(args.index)}.dat'
+            zipf.writestr(filename, dat_file)
 
-    # end_loop = time.time()
+    end_loop = time.time()
 
-    # print('Total time for processing the video:', end_loop - start_loop)
+    print('Total time for processing the video:', end_loop - start_loop)
 
     # Generate datapack
 
@@ -96,7 +96,7 @@ def main(args):
     args_direction = args.direction.upper()
     direction = DirectionEnum[args_direction].value
 
-    amount_frames = 8764
+    # amount_frames = 8780
     datapack_utils = DatapackGeneratorUtils(
         initial_map_id=int(args.index),
         name=args.name,
@@ -104,7 +104,8 @@ def main(args):
         x=int(args.x),
         y=int(args.y),
         z=int(args.z),
-        direction=direction
+        direction=direction,
+        delay=int(args.delay)
     )
     datapack_utils.generate_datapack()
 
@@ -126,6 +127,8 @@ if __name__ == '__main__':
 
     parser.add_argument('-i', '--index', help='Indicates the first map number it\'ll be saved. By default is 0.', default=0)
     parser.add_argument('-f', '--frames', help='Indicates the amount of frames that will be shown in the game. By default is max.', default=None)
+
+    parser.add_argument('-de', '--delay', help='Indicates the amount of seconds that the first frames will be repeated. By default 0.', default=0)
 
     args = parser.parse_args()
 

@@ -16,7 +16,8 @@ class DatapackGeneratorUtils():
         x: int = 0,
         y: int = 0,
         z: int = 0,
-        direction: DirectionEnum = None
+        direction: DirectionEnum = None,
+        delay: int = 0
         ):
         self.name = name
         self.initial_map_id = initial_map_id
@@ -25,8 +26,11 @@ class DatapackGeneratorUtils():
         self.y = y
         self.z = z
         self.direction = direction
+        self.delay = delay
 
+        self.FRAMES_PER_SECOND: final = 40
         self.MAX_COMMANDS_PER_FILE: final = 1000
+        self.DELAY_IN_FRAMES: final = self.delay * self.FRAMES_PER_SECOND
 
         # check if it's either x or z
         self.x_axis: bool = True
@@ -54,7 +58,7 @@ class DatapackGeneratorUtils():
         path_datapack = os.path.join(OUT_DIR, f'datapack_{self.name}.zip')
         with zipfile.ZipFile(path_datapack, 'w', zipfile.ZIP_DEFLATED) as zipf:
             # Write mcmeta
-            content_mcmeta = '{ "pack": { "description": "Animation as Map Art in Minecraft!!!!!!!!", "pack_format": 71 } }'
+            content_mcmeta = '{ "pack": { "description": "Animation as Map Art in Minecraft!!!!!!!!", "pack_format": 71 } }' # 1.21.4
             zipf.writestr('pack.mcmeta', data=content_mcmeta)
 
             # Write mfcuntions
@@ -118,6 +122,11 @@ class DatapackGeneratorUtils():
 
         # set commands required for each frame
         if self.direction == DirectionEnum.NORTH.value:
+            # barriers covering from gravity blocks
+            commands.append(self.get_command_set_block('barrier',       self.x + 1, self.y + 2, '{0}'))
+            commands.append(self.get_command_set_block('barrier',       self.x + 2, self.y + 2, '{0}'))
+            commands.append(self.get_command_set_block('barrier',       self.x + 3, self.y + 2, '{0}'))
+            commands.append(self.get_command_set_block('barrier',       self.x + 4, self.y + 2, '{0}'))
             # top
             commands.append(self.get_command_set_block('quartz_block',  self.x,     self.y + 1, '{0}')) # {0} the northest, Y decreases more
             commands.append(self.get_command_set_block('air',           self.x + 1, self.y + 1, '{0}'))
@@ -138,6 +147,11 @@ class DatapackGeneratorUtils():
             commands.append(self.get_command_set_block('packed_ice', self.x + 3, self.y - 1, '{0}'))
             commands.append(self.get_command_set_block('packed_ice', self.x + 4, self.y - 1, '{0}'))
         if self.direction == DirectionEnum.EAST.value:
+            # barriers covering from gravity blocks
+            commands.append(self.get_command_set_block('barrier',       '{0}', self.y + 2, self.z + 1))
+            commands.append(self.get_command_set_block('barrier',       '{0}', self.y + 2, self.z + 2))
+            commands.append(self.get_command_set_block('barrier',       '{0}', self.y + 2, self.z + 3))
+            commands.append(self.get_command_set_block('barrier',       '{0}', self.y + 2, self.z + 4))
             # top
             commands.append(self.get_command_set_block('quartz_block',  '{0}', self.y + 1, self.z    )) # {0} the westest, X decreases more
             commands.append(self.get_command_set_block('air',           '{0}', self.y + 1, self.z + 1))
@@ -158,6 +172,11 @@ class DatapackGeneratorUtils():
             commands.append(self.get_command_set_block('packed_ice', '{0}', self.y - 1, self.z + 3))
             commands.append(self.get_command_set_block('packed_ice', '{0}', self.y - 1, self.z + 4))
         if self.direction == DirectionEnum.SOUTH.value:
+            # barriers covering from gravity blocks
+            commands.append(self.get_command_set_block('barrier',       '{0}', self.y + 2, self.z - 1))
+            commands.append(self.get_command_set_block('barrier',       '{0}', self.y + 2, self.z - 2))
+            commands.append(self.get_command_set_block('barrier',       '{0}', self.y + 2, self.z - 3))
+            commands.append(self.get_command_set_block('barrier',       '{0}', self.y + 2, self.z - 4))
             # top
             commands.append(self.get_command_set_block('quartz_block',  self.x,     self.y + 1, '{0}')) # {0} the northest, Y decreases more
             commands.append(self.get_command_set_block('air',           self.x - 1, self.y + 1, '{0}'))
@@ -178,6 +197,10 @@ class DatapackGeneratorUtils():
             commands.append(self.get_command_set_block('packed_ice', self.x - 3, self.y - 1, '{0}'))
             commands.append(self.get_command_set_block('packed_ice', self.x - 4, self.y - 1, '{0}'))
         if self.direction == DirectionEnum.WEST.value:
+            # barriers covering from gravity blocks
+            commands.append(self.get_command_set_block('barrier',       '{0}', self.y + 2, self.z - 1))
+            commands.append(self.get_command_set_block('barrier',       '{0}', self.y + 2, self.z - 2))
+            commands.append(self.get_command_set_block('barrier',       '{0}', self.y + 2, self.z - 3))
             # top
             commands.append(self.get_command_set_block('quartz_block',  '{0}', self.y + 1, self.z    )) # {0} the westest, X decreases more
             commands.append(self.get_command_set_block('air',           '{0}', self.y + 1, self.z - 1))
@@ -200,7 +223,7 @@ class DatapackGeneratorUtils():
 
         # set the commands
         parsed_commands = []
-        for index in range(self.total_frames):
+        for index in range(self.total_frames + self.DELAY_IN_FRAMES):
             index *= self.mult
             for command in commands:
                 parsed_command = ''
@@ -234,9 +257,10 @@ class DatapackGeneratorUtils():
             facing_direction = 2
             z = self.z - 1
         
-
         parsed_commands: list[str] = []
-        for index in range(self.total_frames):
+
+        # delay
+        for index in range(self.DELAY_IN_FRAMES):
             parsed_command = ''
             if self.x_axis:
                 parsed_command = command.format(
@@ -244,7 +268,7 @@ class DatapackGeneratorUtils():
                     y=y, 
                     z=z, 
                     facing=facing_direction, 
-                    map_id=(self.initial_map_id + index)
+                    map_id=(self.initial_map_id)
                 )
             else:
                 parsed_command = command.format(
@@ -252,7 +276,28 @@ class DatapackGeneratorUtils():
                     y=y, 
                     z=(z + (self.mult * index)), 
                     facing=facing_direction, 
-                    map_id=(self.initial_map_id + index)
+                    map_id=(self.initial_map_id)
+                )
+            parsed_commands.append(parsed_command)
+
+        # actual frames
+        for index in range(self.DELAY_IN_FRAMES, self.total_frames + self.DELAY_IN_FRAMES):
+            parsed_command = ''
+            if self.x_axis:
+                parsed_command = command.format(
+                    x=(x + (self.mult * index)), 
+                    y=y, 
+                    z=z, 
+                    facing=facing_direction, 
+                    map_id=(self.initial_map_id + index - self.DELAY_IN_FRAMES)
+                )
+            else:
+                parsed_command = command.format(
+                    x=x, 
+                    y=y, 
+                    z=(z + (self.mult * index)), 
+                    facing=facing_direction, 
+                    map_id=(self.initial_map_id + index - self.DELAY_IN_FRAMES)
                 )
             parsed_commands.append(parsed_command)
 
@@ -265,19 +310,19 @@ class DatapackGeneratorUtils():
         y: float = self.y
         z: float = self.z
         if self.direction == DirectionEnum.NORTH.value:
-            x += 3.1
+            x += 2.0
             x_rotation = 180.0
             pass
         if self.direction == DirectionEnum.EAST.value:
-            z += 3.1
+            z += 2.0
             x_rotation = -90.0
             pass
         if self.direction == DirectionEnum.SOUTH.value:
-            x -= 3.1
+            x -= 2.0
             x_rotation = 0
             pass
         if self.direction == DirectionEnum.WEST.value:
-            z -= 3.1
+            z -= 2.0
             x_rotation = 90.0
             pass
 
